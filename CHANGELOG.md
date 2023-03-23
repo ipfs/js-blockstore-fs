@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/ipfs/js-blockstore-fs/compare/v1.0.0...v1.0.1) (2023-03-23)
+
+
+### Dependencies
+
+* update interface-store to 5.x.x ([#1](https://github.com/ipfs/js-blockstore-fs/issues/1)) ([88fa91c](https://github.com/ipfs/js-blockstore-fs/commit/88fa91cb1405ed66f053ed265c1690ac0ad22214))
+
 ## 1.0.0 (2023-03-13)
 
 
