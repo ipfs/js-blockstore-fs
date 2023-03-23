@@ -130,7 +130,7 @@ export class FsBlockstore implements Blockstore {
     await Promise.resolve()
   }
 
-  async put (key: CID, val: Uint8Array): Promise<void> {
+  async put (key: CID, val: Uint8Array): Promise<CID> {
     const { dir, file } = this.shardingStrategy.encode(key)
 
     try {
@@ -141,18 +141,20 @@ export class FsBlockstore implements Blockstore {
       }
 
       await writeFile(path.join(this.path, dir, file), val)
+
+      return key
     } catch (err: any) {
       throw Errors.putFailedError(err)
     }
   }
 
-  async * putMany (source: AwaitIterable<Pair>): AsyncIterable<Pair> {
+  async * putMany (source: AwaitIterable<Pair>): AsyncIterable<CID> {
     yield * parallelBatch(
       map(source, ({ cid, block }) => {
         return async () => {
           await this.put(cid, block)
 
-          return { cid, block }
+          return cid
         }
       }),
       this.putManyConcurrency
@@ -169,11 +171,14 @@ export class FsBlockstore implements Blockstore {
     }
   }
 
-  async * getMany (source: AwaitIterable<CID>): AsyncIterable<Uint8Array> {
+  async * getMany (source: AwaitIterable<CID>): AsyncIterable<Pair> {
     yield * parallelBatch(
       map(source, key => {
         return async () => {
-          return await this.get(key)
+          return {
+            cid: key,
+            block: await this.get(key)
+          }
         }
       }),
       this.getManyConcurrency
